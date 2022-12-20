@@ -61,35 +61,55 @@ SistLinear_t *lerSisLin (unsigned int n, unsigned int k)
   
   SistLinear_t *SL;
   
-  
 
   SL = alocaSisLin (n);
+
+  double matriz_aux[SL->n][SL->n];
+  double b_aux[SL->n];
   
   for(int i=0; i < n; ++i)
     for(int j=0; j < n; ++j)
-      SL->A[i][j]=0.0;
+      matriz_aux[i][j]=0.0;
 
   for(int i=0; i < n; ++i)
-    SL->b[i]=0.0; 
+    b_aux[i]=0.0; 
   
   //gera a matriz com as K-DIAGONAIS
   for ( int l = 0; l < k-1; l++){
     for(int i=0; i < n; ++i){
       for(int j=0; j < n; ++j){      
           if(i==j){
-            SL->A[i][j]=generateRandomA(i,j,k);
+            matriz_aux[i][j]=generateRandomA(i,j,k);
             if(i+k<=n+1)
-              SL->A[i][j+l]=generateRandomA(i,j,k);
+              matriz_aux[i][j+l]=generateRandomA(i,j,k);
             if(i-k>=0) 
-              SL->A[i][j-l]=generateRandomA(i,j,k);
+              matriz_aux[i][j-l]=generateRandomA(i,j,k);
 
           }
       }
     }
   }
-  
+
+  // tranforma em definida-positiva multiplicando pela tranposta
+  for (int i = 0; i < SL->n; i++){
+    for(int j=0; j < SL->n; j++){
+		SL->A[i][j] = 0;
+      for (int k = 0; k < SL->n; k++) {
+				SL->A[i][j] += matriz_aux[k][i] * matriz_aux[k][j];
+      }
+    }
+  }
+
   for(int i=0; i < n; ++i)
-    SL->b[i]=generateRandomB(i+1);
+    b_aux[i]=generateRandomB(i+1);
+
+	for (int i = 0; i < SL->n; i++){
+			SL->b[i] = 0;
+    for(int j=0; j < SL->n; j++){
+			SL->b[i] += matriz_aux[j][i] * b_aux[j];
+    }
+  }
+
   return SL;
 }
 

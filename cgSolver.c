@@ -35,32 +35,32 @@ int main(int argc, char *argv[]){
 
 
 
-    SL->A[0][0] = 4;
-    SL->A[0][1] = 2;
-    SL->A[0][2] = -4;
+    // SL->A[0][0] = 4;
+    // SL->A[0][1] = 2;
+    // SL->A[0][2] = -4;
     
-    SL->A[1][0] = 2;
-    SL->A[1][1] = 10;
-    SL->A[1][2] = 4;
+    // SL->A[1][0] = 2;
+    // SL->A[1][1] = 10;
+    // SL->A[1][2] = 4;
 
-    SL->A[2][0] = -4;
-    SL->A[2][1] = 4;
-    SL->A[2][2] = 9;
+    // SL->A[2][0] = -4;
+    // SL->A[2][1] = 4;
+    // SL->A[2][2] = 9;
 
-    SL->b[0] = 6;
-    SL->b[1] = 12;
-    SL->b[2] = 5;
+    // SL->b[0] = 6;
+    // SL->b[1] = 12;
+    // SL->b[2] = 5;
 
 
 
     // ./cgSolver -n 5 -k 3 -p 0 -i 10 -o teste
-    // ./cgSolver -n 2 -k 2 -p 0 -i 10 -o teste
+    // ./cgSolver -n 3 -k 3 -p 0 -i 10 -o teste
     
     prnSisLin (SL);
 
     gradiente_conjugado (SL, x, p, it, epsilon, arquivo);
 
-    prnVetor (x, SL->n);
+    // prnVetor (x, SL->n);
 
     return 0;
 }

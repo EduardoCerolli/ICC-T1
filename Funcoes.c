@@ -65,14 +65,14 @@ void calcula_residuo (SistLinear_t *SL, double *x, double *r) {
     return;
 }
 
-double calcula_alpha (double *r, double *d, SistLinear_t *SL) {
+double calcula_alpha (double *r, double *d, double *z, SistLinear_t *SL) {
     double alpha = 0;
     double aux_2 = 0;
     double aux[SL->n];
 
     // r.i * r.i
     for (int i = 0; i < SL->n; i++) {
-        alpha += r[i] * r[i];
+        alpha += r[i] * z[i];
     }
 
     // (d.i)^T * A
@@ -109,20 +109,20 @@ void atualiza_r (double *r, double alpha, SistLinear_t *SL, double *d){
     return;
 }
 
-double calcula_beta (double *r, double *r_antigo, int tam) {
+double calcula_beta (double *r, double *r_antigo, double *z, double *z_antigo, int tam) {
     double beta = 0;
     double aux = 0;
 
     for (int i = 0; i < tam; i++) {
-        beta += r[i] * r[i];
-        aux += r_antigo[i] * r_antigo[i];
+        beta += r[i] * z[i];
+        aux += r_antigo[i] * z_antigo[i];
     }
 
     return beta / aux;
 }
 
 // retorna 0 se tiver que parar
-int parada (double *x, double *x_antigo, double epsilon, int tam) {
+int parada (double *x, double *x_antigo, double epsilon, unsigned int tam) {
     double maior = 0;
     double aux;
 
@@ -147,56 +147,221 @@ int parada (double *x, double *x_antigo, double epsilon, int tam) {
     return 1;
 }
 
+void matriz_identidade (double **M, unsigned int tam) {
+
+    for (int i = 0; i < tam; i++){
+        for(int j = 0; j < tam; j++){
+            if (i == j) {
+                M[i][j] = 1.0;
+            }
+            else {
+                M[i][j] = 0.0;
+            }
+        }
+    }
+    
+    return;
+}
+
+void matriz_inversa(double **M, SistLinear_t *SL) {
+
+    double pivo, aux;
+    double matriz_aux[SL->n][SL->n];
+
+    int i, j;
+  float b[25][25], inverse[25][25], d;
+ 
+  for (i = 0;i < r; i++)
+    {
+     for (j = 0;j < r; j++)
+       {
+         b[i][j] = fac[j][i];
+        }
+    }
+  d = determinant(num, r);
+  for (i = 0;i < r; i++)
+    {
+     for (j = 0;j < r; j++)
+       {
+        inverse[i][j] = b[i][j] / d;
+        }
+
+    for(int linha = 0; linha <  SL->n; linha++){
+          for(int coluna = 0; coluna <  SL->n; coluna++){
+              printf("%g \t", M[linha][coluna]);
+                 
+          } 
+          
+          printf("\n"); 
+    }
+
+    return;
+}
+
+void calcula_z (double *z, double **M, double *r, unsigned int tam) {
+
+    for (int i = 0; i < tam; i++){
+        z[i] = 0.0;
+        for(int j=0; j < tam; j++){
+            z[i] += M[i][j] * r[j];
+        }
+    }
+
+    return;
+}
+/*TESTE INVERSA THAUAN*/
+
+float determinant(double **b, unsigned int k){
+    double s = 1, det = 0;
+    int i, j, m, n, c;
+    if (k == 1)      {
+     return (a[0][0]);
+    }else{
+        det = 0;
+        for (c = 0; c < k; c++){
+            m = 0;
+            n = 0;
+            for (i = 0;i < k; i++){
+                for (j = 0 ;j < k; j++){
+                    b[i][j] = 0;
+                    if (i != 0 && j != c){
+                        b[m][n] = a[i][j];
+                        if (n < (k - 2))
+                            n++;
+                        else{
+                            n = 0;
+                            m++;
+                        }
+                    }
+               }
+             }
+          det = det + s * (a[0][c] * determinant(b, k - 1));
+          s = -1 * s;
+          }
+    }
+ 
+    return (det);
+}
+
+void transpose(double **A, double **fac, double tam){
+    int i, j;
+  //float b[25][25], inverse[25][25], d;
+    
+    for (i = 0;i < tam; i++){
+         for (j = 0;j < tam; j++){
+            b[i][j] = fac[j][i];
+        }
+    }
+    d = determinant(num, r);
+    for (i = 0;i < r; i++){
+        for (j = 0;j < r; j++){
+            inverse[i][j] = b[i][j] / d;
+        }
+    }
+}
+
+void cofactor(SistLinear_t *SL,double **M){
+    //float b[25][25], fac[25][25];
+    
+    double **b = (double **) malloc (SL->n * (sizeof(double*)));
+    for (int i = 0; i < SL->n; i++) {
+        b[i] = (double *) malloc (SL->n * (sizeof(double)));
+    }
+    double **fac = (double **) malloc (SL->n * (sizeof(double*)));
+    for (int i = 0; i < SL->n; i++) {
+        fac[i] = (double *) malloc (SL->n * (sizeof(double)));
+    }
+    double p, q, m, n, i, j;
+    for (q = 0;q < SL->n; q++){
+        for (p = 0;p < SL->n; p++){
+            m = 0;
+            n = 0;
+            for (i = 0;i < SL->n; i++){
+                for (j = 0;j < SL->n; j++){
+                    if (i != q && j != p){
+                        b[m][n] = SL->A[i][j];
+                        if (n < (f - 2))
+                            n++;
+                        else{
+                            n = 0;
+                            m++;
+                        }
+                    }
+                }
+            }
+        fac[q][p] = pow(-1, q + p) * determinant(b, SL->n - 1);
+        }
+    }
+    transpose(SL->A, fac, SL->n);
+}
 void gradiente_conjugado (SistLinear_t *SL, double *x, int p, int it, double epsilon, char *arquivo) {
     int cont = 0;
-	double *d = (double *) malloc (SL->n * (sizeof(double)));
-	double *r = (double *) malloc (SL->n * (sizeof(double)));
-	double *r_antigo = (double *) malloc (SL->n * (sizeof(double)));
-	double *x_antigo = (double *) malloc (SL->n * (sizeof(double)));
+	double d[SL->n];
+	double r[SL->n];
+	double z[SL->n];
+	double r_antigo[SL->n];
+	double x_antigo[SL->n];
+	double z_antigo[SL->n];
     double alpha;
 	double beta;
-    
-
-    // 1 x.0
+    double **M = (double **) malloc (SL->n * (sizeof(double*)));
     for (int i = 0; i < SL->n; i++) {
-        x[i] = 0;
+        M[i] = (double *) malloc (SL->n * (sizeof(double)));
     }
 
-    // 2 d.0 e r.0
-    calcula_residuo (SL, x, r);
-    for (int i = 0; i < SL->n; i++) {
-        d[i] = r[i];
-    }
+    matriz_identidade (M, SL->n);
+   // matriz_inversa (M, SL);
+    cofactor(SL,M);
 
-    do {
-        // 4 alpha.i
-        alpha = calcula_alpha (r, d, SL);
+    // // 1 x.0
+    // for (int i = 0; i < SL->n; i++) {
+    //     x[i] = 0;
+    // }
 
-        // 5 x.i+1
-        for (int i = 0; i < SL->n; i++) {
-            x_antigo[i] = x[i];
-            x[i] = x[i] + (alpha * d[i]);
-        }
+    // // 2 d.0 e r.0
+    // calcula_residuo (SL, x, r);
 
-        // 6 r.i+1
-        for (int i = 0; i < SL->n; i++) {
-            r_antigo[i] += r[i];
-        }
-        atualiza_r (r, alpha, SL, d);
+    // // z.0
+    // calcula_z (z, M, r, SL->n);
+    // for (int i = 0; i < SL->n; i++) {
+    //     d[i] = z[i];
+    // }
 
-        // 7 beta.i+1
-        beta = calcula_beta (r, r_antigo, SL->n);
+    // do {
+    //     // 4 alpha.i
+    //     alpha = calcula_alpha (r, d, z, SL);
 
-        // 8 d.i+1
-        for (int i = 0; i < SL->n; i++) {
-            d[i] = r[i] + (beta * d[i]);
-        }
+    //     // 5 x.i+1
+    //     for (int i = 0; i < SL->n; i++) {
+    //         x_antigo[i] = x[i];
+    //         x[i] = x[i] + (alpha * d[i]);
+    //     }
 
-        cont++;
+    //     // 6 r.i+1
+    //     for (int i = 0; i < SL->n; i++) {
+    //         r_antigo[i] = r[i];
+    //     }
+    //     atualiza_r (r, alpha, SL, d);
 
-    } while ((parada (x, x_antigo, epsilon, SL->n)) && cont < it);
+    //     // z.i+1
+    //     for (int i = 0; i < SL->n; i++) {
+    //         z_antigo[i] = z[i];
+    //     }
+    //     calcula_z (z, M, r, SL->n);
+
+    //     // 7 beta.i+1
+    //     beta = calcula_beta (r, r_antigo, z, z_antigo, SL->n);
+
+    //     // 8 d.i+1
+    //     for (int i = 0; i < SL->n; i++) {
+    //         d[i] = z[i] + (beta * d[i]);
+    //     }
+
+    //     cont++;
+
+    // } while ((parada (x, x_antigo, epsilon, SL->n)) && cont < it);
     
-    printf ("%d\n", cont);
+    // printf ("%d\n", cont);
 
     return;
 }
