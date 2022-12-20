@@ -21,5 +21,6 @@ void matriz_inversa (double **M, SistLinear_t *SL);
 void calcula_z (double *z, double **M, double *r, unsigned int tam);
 void gradiente_conjugado (SistLinear_t *SL, double *x, int p, int it, double epsilon, char *arquivo);
 
-
+/*teste*/
+void cofactor(SistLinear_t *SL,double **M);
 #endif // __FUNCOES_H__
