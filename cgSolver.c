@@ -60,7 +60,7 @@ int main(int argc, char *argv[]){
 
     gradiente_conjugado (SL, x, p, it, epsilon, arquivo);
 
-    // prnVetor (x, SL->n);
+    prnVetor (x, SL->n);
 
     return 0;
 }
