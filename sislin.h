@@ -1,3 +1,7 @@
+// Eduardo Henrique dos Santos Cerolli - GRR20190397
+// Thauan de Souza Tavares da Silva - GRR20171591
+
+
 #ifndef __SISLIN_H__
 #define __SISLIN_H__
 

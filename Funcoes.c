@@ -1,3 +1,7 @@
+// Eduardo Henrique dos Santos Cerolli - GRR20190397
+// Thauan de Souza Tavares da Silva - GRR20171591
+
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -206,6 +210,32 @@ void calcula_z (double *z, double **M, double *r, unsigned int tam) {
     return;
 }
 
+double norma_max(double *x, double *x_antigo, unsigned int tam) {
+    double maior = 0;
+    double aux;
+
+    for (int i = 0; i < tam; i++) {
+        aux = x[i] - x_antigo[i];
+        aux = ABS (aux);
+
+        if (aux > maior) {
+            maior = aux;
+        }
+    }
+
+    return maior;
+}
+
+void prnVetor_arq (double *v, unsigned int n, FILE *arq) {
+  int i;
+
+  fprintf (arq, "\n");
+  for (i = 0; i < n; ++i)
+      fprintf (arq, "%.15g ", v[i]);
+  fprintf (arq, "\n\n");
+
+}
+
 void gradiente_conjugado (SistLinear_t *SL, double *x, int p, int it, double epsilon, char *arquivo) {
     int cont = 0;
 	double d[SL->n];
@@ -216,22 +246,32 @@ void gradiente_conjugado (SistLinear_t *SL, double *x, int p, int it, double eps
 	double z_antigo[SL->n];
     double alpha;
 	double beta;
-    double **M = (double **) malloc (SL->n * (sizeof(double*)));
+    double **M;
+    double tempo_PC;
+    double tempo_iter;
+    double tempo_residuo;
+    double residuo;
+
+    FILE *arq = fopen (arquivo, "w");
+
+    M = (double **) malloc (SL->n * (sizeof(double*)));
     for (int i = 0; i < SL->n; i++) {
         M[i] = (double *) malloc (SL->n * (sizeof(double)));
     }
 
+    tempo_PC = timestamp();
     matriz_identidade (M, SL->n);
     if (p == 1) {
         matriz_inversa (M, SL);
     }
+    tempo_PC = timestamp() - tempo_PC;
 
     // 1 x.0
     for (int i = 0; i < SL->n; i++) {
         x[i] = 0;
     }
 
-    // 2 d.0 e r.0
+    // 2 r.0
     calcula_residuo (SL, x, r);
 
     // z.0
@@ -240,6 +280,11 @@ void gradiente_conjugado (SistLinear_t *SL, double *x, int p, int it, double eps
         d[i] = z[i];
     }
 
+    fprintf (arq, "# ehsc19 Eduardo Henrique dos Santos Cerolli\n");
+    fprintf (arq, "# tsts17 Thauan de Souza Tavares da Silva\n");
+    fprintf (arq, "#\n");
+
+    tempo_iter = timestamp();
     do {
         // 4 alpha.i
         alpha = calcula_alpha (r, d, z, SL);
@@ -272,9 +317,24 @@ void gradiente_conjugado (SistLinear_t *SL, double *x, int p, int it, double eps
 
         cont++;
 
+        fprintf (arq, "# iter %d: %g\n", cont, norma_max(x, x_antigo, SL->n));
     } while ((parada (x, x_antigo, epsilon, SL->n)) && cont < it);
+
+    tempo_iter = timestamp() - tempo_iter;
+    tempo_iter = tempo_iter / cont;
     
-    printf ("%d\n", cont);
+    tempo_residuo = timestamp();
+    calcula_residuo (SL, x, r);
+    residuo = normaEuclidiana(r, SL->n);
+    tempo_residuo = timestamp() - tempo_residuo;
+
+    fprintf (arq, "# residuo: %g\n", residuo);
+    fprintf (arq, "# Tempo PC: %g\n", tempo_PC);
+    fprintf (arq, "# Tempo iter: %g\n", tempo_iter);
+    fprintf (arq, "# Tempo residuo: %g\n", tempo_residuo);
+    fprintf (arq, "#\n");
+    fprintf (arq, "%d", SL->n);
+    prnVetor_arq (x, SL->n, arq);
 
     return;
 }
